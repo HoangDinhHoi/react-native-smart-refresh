@@ -1,20 +1,36 @@
-'use strict';
-import React, { useRef, useState, useCallback } from 'react';
+"use strict";
+import React, { useRef, useState, useCallback } from "react";
 import {
   View,
   Animated,
   ActivityIndicator,
   Text,
   StyleSheet,
-} from 'react-native';
-import Dayjs from 'dayjs';
-import {SmartRefresh,SmartRefreshHeader} from "../index";
+} from "react-native";
+import Dayjs from "dayjs";
+import { SmartRefresh, SmartRefreshHeader } from "../index";
 
 function NormalRefreshHeader(props) {
-  const { refreshing, onRefresh, children, activityIndicatorProps, arrowIcon, containerStyle, titleStyle, timeStyle, leftContainerStyle, rightContainerStyle, imageStyle } = props;
+  const {
+    refreshing,
+    onRefresh,
+    children,
+    activityIndicatorProps,
+    arrowIcon,
+    containerStyle,
+    titleStyle,
+    timeStyle,
+    leftContainerStyle,
+    rightContainerStyle,
+    imageStyle,
+    IdleTitle,
+    callbackTitle,
+    pullingTitle,
+    lastTimeTitle,
+  } = props;
 
-  const [title, setTitle] = useState('下拉刷新');
-  const [lastTime, setLastTime] = useState(Dayjs().format('HH:mm'));
+  const [title, setTitle] = useState(IdleTitle);
+  const [lastTime, setLastTime] = useState(Dayjs().format("HH:mm"));
   const rotateZRef = useRef(new Animated.Value(0));
 
   const onPullingRefreshCallBack = useCallback((state) => {
@@ -23,18 +39,17 @@ function NormalRefreshHeader(props) {
       duration: 200,
       useNativeDriver: true,
     }).start(() => {});
-    setTitle('松开立即刷新');
+    setTitle(pullingTitle);
   }, []);
 
   const onRefreshCallBack = useCallback(
     (state) => {
       onRefresh && onRefresh(state);
-      setLastTime(Dayjs().format('HH:mm'));
-      setTitle('正在刷新...');
+      setLastTime(Dayjs().format("HH:mm"));
+      setTitle(callbackTitle);
     },
-    [onRefresh],
+    [onRefresh]
   );
-
 
   const onIdleRefreshCallBack = useCallback((state) => {
     Animated.timing(rotateZRef.current, {
@@ -42,7 +57,7 @@ function NormalRefreshHeader(props) {
       duration: 200,
       useNativeDriver: true,
     }).start(() => {});
-    setTitle('下拉刷新');
+    setTitle(IdleTitle);
   }, []);
 
   const onChangeStateCallBack = useCallback((event) => {
@@ -51,54 +66,50 @@ function NormalRefreshHeader(props) {
       case 0:
         onIdleRefreshCallBack();
         break;
-        case 1:
-          onPullingRefreshCallBack();
+      case 1:
+        onPullingRefreshCallBack();
         break;
       case 2:
         onRefreshCallBack();
         break;
       default:
-
     }
   }, []);
   return (
-    <SmartRefresh
-      refreshing={refreshing}
-      onChangeState={onChangeStateCallBack}
-    >
-      <SmartRefreshHeader
-        style={[styles.container, { ...containerStyle }]}
-      >
-        <View style={[styles.leftContainer, {...leftContainerStyle}]}>
+    <SmartRefresh refreshing={refreshing} onChangeState={onChangeStateCallBack}>
+      <SmartRefreshHeader style={[styles.container, { ...containerStyle }]}>
+        <View style={[styles.leftContainer, { ...leftContainerStyle }]}>
           <Animated.Image
-              style={[
-                styles.image,
-                {
-                  ...imageStyle,
-                  opacity: refreshing ? 0 : 1,
-                  transform: [
-                    {
-                      rotate: rotateZRef.current.interpolate({
-                        inputRange: [0, 180],
-                        outputRange: ['0deg', '180deg'],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-              source={ arrowIcon || require('./assets/icon_down_arrow.png')}
+            style={[
+              styles.image,
+              {
+                ...imageStyle,
+                opacity: refreshing ? 0 : 1,
+                transform: [
+                  {
+                    rotate: rotateZRef.current.interpolate({
+                      inputRange: [0, 180],
+                      outputRange: ["0deg", "180deg"],
+                    }),
+                  },
+                ],
+              },
+            ]}
+            source={arrowIcon || require("./assets/icon_down_arrow.png")}
           />
           <ActivityIndicator
-              style={{ opacity: refreshing ? 1 : 0 }}
-              animating={true}
-              size="small"
-              hidesWhenStopped={true}
-              {...activityIndicatorProps}
+            style={{ opacity: refreshing ? 1 : 0 }}
+            animating={true}
+            size="small"
+            hidesWhenStopped={true}
+            {...activityIndicatorProps}
           />
         </View>
-        <View style={[styles.rightContainer,{...rightContainerStyle}]}>
-          <Text style={[ styles.titleStyle, { ...titleStyle }] }>{title}</Text>
-          <Text style={[ styles.timeStyle, { ...timeStyle }] }>{`最后更新：${lastTime}`}</Text>
+        <View style={[styles.rightContainer, { ...rightContainerStyle }]}>
+          <Text style={[styles.titleStyle, { ...titleStyle }]}>{title}</Text>
+          <Text
+            style={[styles.timeStyle, { ...timeStyle }]}
+          >{`${lastTimeTitle}：${lastTime}`}</Text>
         </View>
       </SmartRefreshHeader>
       {children}
@@ -109,35 +120,35 @@ function NormalRefreshHeader(props) {
 const styles = StyleSheet.create({
   container: {
     // height: 80,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   titleStyle: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   timeStyle: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     marginTop: 10,
   },
   leftContainer: {
     width: 30,
     height: 30,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   rightContainer: {
     width: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
-    position: 'absolute',
+    position: "absolute",
     width: 30,
     height: 30,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
 });
 
