@@ -106,8 +106,14 @@ function NormalRefreshHeader(props) {
           />
         </View>
         <View style={[styles.rightContainer, { ...rightContainerStyle }]}>
-          <Text style={[styles.titleStyle, { ...titleStyle }]}>{title}</Text>
           <Text
+            allowFontScaling={false}
+            style={[styles.titleStyle, { ...titleStyle }]}
+          >
+            {title}
+          </Text>
+          <Text
+            allowFontScaling={false}
             style={[styles.timeStyle, { ...timeStyle }]}
           >{`${lastTimeTitle}：${lastTime}`}</Text>
         </View>
